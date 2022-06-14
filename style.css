@@ -9,6 +9,9 @@
   border: 1px solid black;
   width: 1250px;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 .shelf {
   border: 1px solid red;
@@ -27,7 +30,7 @@
   height: 80px;
   background-color: orange;
   cursor: pointer;
-  margin-bottom: 100px;
+  margin-bottom: 40px;
   /* position: absolute; */
 }
 

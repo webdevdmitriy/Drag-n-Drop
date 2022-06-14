@@ -19,8 +19,8 @@ function drop(e) {
   let itemId = e.dataTransfer.getData('id')
   //   e.target.append(document.getElementById(itemId))
   zone.append(document.getElementById(itemId))
-  if (itemId == 'block-2') {
-    drawLine()
+  if (itemId != 'block-1') {
+    drawLine(itemId)
   }
   //   drawLine()
 }
@@ -38,29 +38,33 @@ function randomColor() {
   return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
-// blocks[1].onmouseup = function () {
-//   drawLine()
-// }
-// blocks[1].onmousedown = function (event) {
-//   console.log('нажали')
-// }
-// blocks[1].onmouseup = function () {
-//   drawLine()
-//   console.log('отпустили')
-// }
 //===================================================================================
 // Рисуем линию
 
-function drawLine() {
-  let blocks = document.querySelectorAll('.block')
-  let react = blocks[0].getBoundingClientRect()
-  let react2 = blocks[1].getBoundingClientRect()
-  let line = document.querySelector('line')
+function drawLine(id) {
+  let blocks = document.querySelectorAll('.zone .block')
+
+  //   let react = blocks[0].getBoundingClientRect()
+  let react1 = blocks[blocks.length - 2].getBoundingClientRect()
+
+  let react2 = blocks[blocks.length - 1].getBoundingClientRect()
+
+  console.log(react1)
+  console.log(react2)
+
+  //   let line = document.querySelector('line')
+  let line = document.createElementNS('http://www.w3.org/2000/svg', 'line')
+  line.style.stroke = 'rgb(255, 0, 0)'
+  line.style.strokeWidth = '2'
+
   let zoneY = zone.getBoundingClientRect().top
   let zoneX = zone.getBoundingClientRect().left
 
-  line.setAttribute('x1', react.left - zoneX + react.width / 2)
-  line.setAttribute('y1', react.top - zoneY + react.height)
-  line.setAttribute('x2', react2.left - zoneX + react.width / 2)
+  line.setAttribute('x1', react1.left - zoneX + react1.width / 2)
+  line.setAttribute('y1', react1.top - zoneY + react1.height)
+  line.setAttribute('x2', react2.left - zoneX + react1.width / 2)
   line.setAttribute('y2', react2.top - zoneY)
+
+  let svg = document.querySelector('svg')
+  svg.append(line)
 }
