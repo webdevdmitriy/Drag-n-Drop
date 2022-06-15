@@ -1,3 +1,11 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  counter-reset: zone shelf;
+}
+
 .main {
   display: flex;
   justify-content: space-between;
@@ -7,22 +15,86 @@
 
 .zone {
   border: 1px solid black;
-  width: 1250px;
+  width: 800px;
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
+  flex-shrink: 0;
+  padding: 10px;
 }
+
+.zone-1,
+.zone-2,
+.zone-3 {
+  height: 100px;
+  width: 100%;
+  border: 1px solid black;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.zone > div:before {
+  position: absolute;
+  content: '';
+  counter-increment: zone;
+  content: counter(zone);
+  left: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 30px;
+}
+
+.dark-background:after {
+  content: '';
+  position: absolute;
+  background: rgba(0, 0, 0, 0.5);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+}
+
 .shelf {
   border: 1px solid red;
-  width: 200px;
+  width: 100%;
   height: 700px;
   display: flex;
   padding: 10px;
+  margin-left: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.shelf > div {
+  border: 1px solid black;
+  padding: 10px;
+  padding-top: 100px;
+  width: 33%;
+  display: flex;
   flex-direction: column;
   align-items: center;
-  margin-left: 10px;
   position: relative;
+}
+.shelf > div:before {
+  position: absolute;
+  content: '';
+  counter-increment: shelf;
+  content: counter(shelf);
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  font-size: 30px;
+}
+
+.shelf .block {
+  margin-bottom: 20px;
 }
 
 .block {
@@ -30,9 +102,15 @@
   height: 80px;
   background-color: orange;
   cursor: pointer;
-  margin-bottom: 40px;
+  /* margin-bottom: 40px; */
   /* position: absolute; */
 }
+/* .block:nth-child(2n + 2) {
+  background-color: blue;
+}
+.block:nth-child(3n + 3) {
+  background-color: red;
+} */
 
 svg {
   position: absolute;
