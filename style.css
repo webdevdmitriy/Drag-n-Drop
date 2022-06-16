@@ -24,6 +24,10 @@ body {
   padding: 10px;
 }
 
+svg {
+  position: absolute;
+}
+
 .zone-1,
 .zone-2,
 .zone-3 {
@@ -93,29 +97,28 @@ body {
   font-size: 30px;
 }
 
-.shelf .block {
+/* .shelf-1 > .dragItem:nth-child(2n),
+.shelf-2 > .dragItem:nth-child(2n),
+.shelf-3 > .dragItem:nth-child(2n) {
+  background-color: blue;
+}
+.shelf-1 > .dragItem:nth-child(3n),
+.shelf-2 > .dragItem:nth-child(3n),
+.shelf-3 > .dragItem:nth-child(3n) {
+  background-color: red;
+} */
+
+.shelf .dragItem {
   margin-bottom: 20px;
 }
 
-.block {
+.dragItem {
   width: 80px;
   height: 80px;
   background-color: orange;
   cursor: pointer;
-  /* margin-bottom: 40px; */
-  /* position: absolute; */
-}
-/* .block:nth-child(2n + 2) {
-  background-color: blue;
-}
-.block:nth-child(3n + 3) {
-  background-color: red;
-} */
-
-svg {
-  position: absolute;
 }
 
-/* .block:nth-child(2) {
-  top: 500px;
-} */
+.dropZone--active {
+  border: 5px dashed blue;
+}

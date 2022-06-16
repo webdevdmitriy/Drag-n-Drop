@@ -1,134 +1,84 @@
 const shelf = document.querySelector('.shelf')
 const zone = document.querySelector('.zone ')
 const zones = document.querySelectorAll('.zone div')
-let blocks = document.querySelectorAll('.block')
-
-let isblock = false
+let dragsItems = document.querySelectorAll('.dragItem')
 
 //отменяем запрет перетаскивания элементов в другие элементы
-// zone.ondragover = e => {
-//   e.preventDefault()
-// }
 
 zones.forEach(item => (item.ondragover = e => e.preventDefault()))
 
-// shelf.ondragover = e => e.preventDefault()
+// Перетаскиваемые объекты
+dragsItems.forEach(item => {
+  item.addEventListener('dragstart', handlerDragStart)
+  item.addEventListener('dragend', handlerDragEnd)
+})
 
-// Записываем данные перетаскиваемого объекта
-blocks.forEach(
-  item =>
-    (item.ondragstart = e => {
-      e.dataTransfer.setData('id', e.target.id)
-      e.dataTransfer.setData('zone', e.target.getAttribute('data-zone'))
-      let zoneId = e.dataTransfer.getData('zone')
+// Зоны для перетаскивания объектов
+zones.forEach(dropZone => {
+  dropZone.addEventListener('drop', handlerDrop)
+  dropZone.addEventListener('dragenter', handlerDragEnter)
+  dropZone.addEventListener('dragleave', handlerDragLeave)
+})
 
-      // e.target.classList.add('dragging')
+function handlerDragStart(e) {
+  e.dataTransfer.setData('item', e.target.dataset.item)
+  e.dataTransfer.setData('zone', e.target.dataset.zone)
 
-      item.ondragover = e => {
-        zones.forEach(item => {
-          if (item.getAttribute('zone') != zoneId)
-            item.classList.add('dark-background')
-        })
-      }
+  let zoneId = this.dataset.zone
 
-      item.dragend = e => {
-        zones.forEach(item => {
-          item.classList.remove('dark-background')
-        })
-      }
+  zones.forEach(item => {
+    if (item.dataset.zone != zoneId) item.classList.add('dark-background')
+  })
+}
 
-      // }
-    })
-)
-// block.ondragstart = e => e.dataTransfer.setData('id', e.target.id)
-
-zone.ondrop = drop
-shelf.ondrop = drop
-
-const zone1 = document.querySelector('.zone-1')
-
-function drop(e) {
-  let itemId = e.dataTransfer.getData('id')
-  let zoneId = e.dataTransfer.getData('zone')
-  let zone = document.querySelector(`.zone-${zoneId}`)
-
+function handlerDragEnd(e) {
   zones.forEach(item => {
     item.classList.remove('dark-background')
   })
-
-  if (
-    e.composedPath().includes(zone) &&
-    (e.target.querySelector('div') || e.target.classList.contains('block'))
-  ) {
-    document
-      .querySelector('.shelf-' + e.dataTransfer.getData('zone'))
-      .append(zone.querySelector('div'))
-  }
-
-  // console.log(e.target)
-  // console.log(e.target.getAttribute('zone'))
-  // console.log(zoneId)
-
-  if (e.composedPath().includes(zone))
-    zone.append(document.getElementById(itemId))
-
-  if (itemId != 'block-1') {
-    drawLine(itemId)
-  }
-
-  // let old = document.querySelector('.dragging')
-  // old && old.classList.remove('dragging')
-  // old = document.querySelector('.over')
-  // old && old.classList.remove('over')
-  // let v = e.target
-
-  // document.querySelector('.shelf-' + e.dataTransfer.getData('zone')).append(v)
-
-  // document.querySelector('.shelf-' + e.dataTransfer.getData('zone'))
-  // console.log(isblock)
-  // document
-  //   .querySelector('.shelf-' + e.dataTransfer.getData('zone'))
-  //   .append(e.target.querySelector('div'))
-
-  // document
-  //   .querySelector('.shelf-' + e.dataTransfer.getData('zone'))
-  //   .append(e.target.querySelector('div'))
-
-  // isblock = true
 }
 
-counter = 1
-blocks.forEach(item => {
-  // num1 = randomColor()
-  // num2 = randomColor()
-  // num3 = randomColor()
-  // item.style.backgroundColor = `rgb(${num1},${num2},${num3})`
-  counter % 2 == 0 && (item.style.backgroundColor = 'red')
-  counter % 3 == 0 && (item.style.backgroundColor = 'blue')
-  counter++
-})
+function handlerDrop(e) {
+  let item = e.dataTransfer.getData('item')
+  let zoneId = e.dataTransfer.getData('zone')
+  let dragItem = document.querySelector(`[data-item="${item}"]`)
+  let itemInZone = this.querySelector('div')
 
-// function randomColor() {
-//   let max = 255
-//   let min = 0
-//   return Math.floor(Math.random() * (max - min + 1)) + min
-// }
+  if (this.dataset.zone == zoneId) {
+    itemInZone && document.querySelector('.shelf-' + zoneId).append(itemInZone)
+    this.append(dragItem)
+  }
+  document.querySelector('.zone-' + zoneId).classList.remove('dropZone--active')
+
+  let itemInZone1
+  let itemInZone2
+  if (zoneId >= 2) {
+    itemInZone1 = document.querySelector(`.zone-${zoneId - 1}`)
+  }
+
+  if (zoneId < zones.length) {
+    itemInZone2 = document.querySelector(`.zone-${Number(zoneId) + 1}`)
+  }
+
+  if (itemInZone1 && itemInZone1.hasChildNodes()) {
+    drawLine(itemInZone1.querySelector('div'), dragItem)
+  }
+  if (itemInZone2 && itemInZone2.hasChildNodes()) {
+    drawLine(dragItem, itemInZone2.querySelector('div'))
+  }
+}
+
+function handlerDragEnter(e) {
+  // console.log(e.dataTransfer.getData('zone'))
+}
+function handlerDragLeave() {}
 
 //===================================================================================
 // Рисуем линию
 
-function drawLine(id) {
-  let blocks = document.querySelectorAll('.zone .block')
+function drawLine(item1, item2) {
+  let react1 = item1 && item1.getBoundingClientRect()
+  let react2 = item2 && item2.getBoundingClientRect()
 
-  //   let react = blocks[0].getBoundingClientRect()
-  let react1 = blocks[blocks.length - 2].getBoundingClientRect()
-
-  let react2 = blocks[blocks.length - 1].getBoundingClientRect()
-
-  console.log(react1)
-  console.log(react2)
-
-  //   let line = document.querySelector('line')
   let line = document.createElementNS('http://www.w3.org/2000/svg', 'line')
   line.style.stroke = 'rgb(255, 0, 0)'
   line.style.strokeWidth = '2'
@@ -146,3 +96,16 @@ function drawLine(id) {
   let svg = document.querySelector('svg')
   svg.append(line)
 }
+
+//рандомные цвета
+// dragsItems.forEach(item => {
+//   dataItem = item.setData('item')
+//   i % 2 == 0 && (item.style.backgroundColor = 'red')
+//   i % 3 == 0 && (item.style.backgroundColor = 'blue')
+// })
+
+// function randomColor() {
+//   let max = 255
+//   let min = 0
+//   return Math.floor(Math.random() * (max - min + 1)) + min
+// }
