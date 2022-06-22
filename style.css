@@ -28,9 +28,7 @@ svg {
   position: absolute;
 }
 
-.zone-1,
-.zone-2,
-.zone-3 {
+.zone > div[data-zone] {
   height: 100px;
   width: 100%;
   border: 1px solid black;
@@ -39,6 +37,11 @@ svg {
   align-items: center;
   justify-content: center;
   position: relative;
+  padding-left: 150px;
+  padding-right: 150px;
+}
+.zone > div[data-zone].data {
+  height: 50px;
 }
 
 .zone > div:before {
@@ -50,6 +53,21 @@ svg {
   top: 50%;
   transform: translateY(-50%);
   font-size: 30px;
+}
+
+.zone .data {
+  height: 50px;
+  width: 100%;
+  border: 1px solid black;
+  margin-bottom: 10px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.zone .data input {
+  margin-left: 10px;
 }
 
 .dark-background:after {
@@ -116,9 +134,74 @@ svg {
   width: 80px;
   height: 80px;
   background-color: orange;
+  color: #fff;
   cursor: pointer;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+.dragItem_enter1,
+.dragItem_enter2 {
+  content: '';
+  display: block;
+  width: 10px;
+  height: 10px;
+  background-color: red;
+  position: absolute;
+  z-index: 2;
+  top: 0px;
+  left: 0px;
+}
+.dragItem_enter2 {
+  left: auto;
+  right: 0px;
+}
+
+.dragItem_out1,
+.dragItem_out2 {
+  content: '';
+  display: block;
+  width: 10px;
+  height: 10px;
+  background-color: purple;
+  position: absolute;
+  z-index: 2;
+  bottom: 0px;
+  left: 0px;
+}
+.dragItem_out2 {
+  left: auto;
+  right: 0px;
 }
 
 .dropZone--active {
   border: 5px dashed blue;
+}
+
+.zone .point {
+  width: 10px;
+  height: 10px;
+  background-color: red;
+  border-radius: 100%;
+}
+
+.point,
+.zone .dragItem {
+  margin-right: auto;
+}
+
+.data-signal {
+}
+
+.data-signal_block {
+  display: none;
+}
+
+.data-signal_select {
+  cursor: pointer;
 }

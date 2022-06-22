@@ -62,9 +62,11 @@ function handlerDrop(e) {
   if (itemInZone1 && itemInZone1.hasChildNodes()) {
     drawLine(itemInZone1.querySelector('div'), dragItem)
   }
+
   if (itemInZone2 && itemInZone2.hasChildNodes()) {
     drawLine(dragItem, itemInZone2.querySelector('div'))
   }
+  showDataSignal()
 }
 
 function handlerDragEnter(e) {
@@ -75,37 +77,98 @@ function handlerDragLeave() {}
 //===================================================================================
 // Рисуем линию
 
+let zoneY = zone.getBoundingClientRect().top
+let zoneX = zone.getBoundingClientRect().left
+
 function drawLine(item1, item2) {
+  console.log(item1)
+  console.log(item2)
   let react1 = item1 && item1.getBoundingClientRect()
   let react2 = item2 && item2.getBoundingClientRect()
 
   let line = document.createElementNS('http://www.w3.org/2000/svg', 'line')
   line.style.stroke = 'rgb(255, 0, 0)'
   line.style.strokeWidth = '2'
-  console.log(react1.top)
 
-  let zoneY = zone.getBoundingClientRect().top
-  let zoneX = zone.getBoundingClientRect().left
-  console.log(zoneY)
-
-  line.setAttribute('x1', react1.left - zoneX + react1.width / 2)
+  line.setAttribute('x1', react1.left - zoneX)
   line.setAttribute('y1', react1.top - zoneY + react1.height - 10)
-  line.setAttribute('x2', react2.left - zoneX + react1.width / 2)
+  line.setAttribute('x2', react2.left - zoneX)
   line.setAttribute('y2', react2.top - zoneY - 10)
 
   let svg = document.querySelector('svg')
   svg.append(line)
 }
 
-//рандомные цвета
-// dragsItems.forEach(item => {
-//   dataItem = item.setData('item')
-//   i % 2 == 0 && (item.style.backgroundColor = 'red')
-//   i % 3 == 0 && (item.style.backgroundColor = 'blue')
-// })
+// Рисование линии обратной связи
+function drawLineFeedBack(block1, block2) {
+  let line = document.createElementNS('http://www.w3.org/2000/svg', 'polyline')
+  line.style.stroke = 'rgb(255, 0, 0)'
+  line.style.strokeWidth = '2'
+  line.style.fill = 'none'
 
-// function randomColor() {
-//   let max = 255
-//   let min = 0
-//   return Math.floor(Math.random() * (max - min + 1)) + min
-// }
+  let react1 = block1.getBoundingClientRect()
+  let react2 = block2.getBoundingClientRect()
+
+  let points = ''
+  points += `${react1.right - zoneX - 5}, ${react1.top - zoneY + react1.height - zoneY - 10} `
+  points += `${react1.right - zoneX - 5}, ${react1.top - zoneY + react1.height - zoneY - 10 + 20} `
+  points += `${react1.right - zoneX - 5 + 80}, ${react1.top - zoneY + react1.height - zoneY - 10 + 20} `
+  points += `${react1.right - zoneX - 5 + 80}, ${react1.top - zoneY + react1.height - 10} `
+  points += `${react1.right - zoneX - 5 + 80}, ${react2.top - zoneY - 10 - 10} `
+  points += `${react2.right - zoneX - 5}, ${react2.top - zoneY - 10 - 10} `
+  points += `${react2.right - zoneX - 5}, ${react2.top - zoneY - 10} `
+  line.setAttribute('points', points)
+  let svg = document.querySelector('svg')
+  svg.append(line)
+}
+
+//================================================================
+// Добавление входов и выходов для каждого блока
+dragsItems.forEach(function (item) {
+  let enter1 = document.createElement('span')
+  let enter2 = document.createElement('span')
+  let out1 = document.createElement('span')
+  let out2 = document.createElement('span')
+  enter1.classList.add('dragItem_enter1')
+  enter2.classList.add('dragItem_enter2')
+  out1.classList.add('dragItem_out1')
+  out2.classList.add('dragItem_out2')
+  item.append(enter1)
+  item.append(enter2)
+  item.append(out1)
+  item.append(out2)
+})
+
+let outs2 = document.querySelectorAll('.dragItem_out2')
+let enters2 = document.querySelectorAll('.dragItem_enter2')
+
+outs2.forEach(function (item) {
+  item.addEventListener('click', function () {
+    let block1 = item.parentNode
+
+    enters2.forEach(function (item) {
+      item.addEventListener('click', function () {
+        let block2 = item.parentNode
+        drawLineFeedBack(block1, block2)
+      })
+    })
+  })
+})
+
+//========================================================
+// выбор сигнала
+
+const dataSignalSelect = document.querySelector('.data-signal_select')
+const dataSignalInput = document.querySelector('.data-signal_input')
+
+dataSignalSelect.addEventListener('change', function () {
+  dataSignalInput.value = this.value
+  if (this.value != 0) document.querySelector('.point').style.backgroundColor = 'green'
+  else document.querySelector('.point').style.backgroundColor = 'red'
+})
+
+function showDataSignal() {
+  if (document.querySelector('.zone-1').hasChildNodes()) {
+    document.querySelector('.data-signal_block').style.display = 'block'
+  }
+}
