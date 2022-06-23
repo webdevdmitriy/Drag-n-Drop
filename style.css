@@ -1,9 +1,20 @@
+/* Общие  */
 * {
   box-sizing: border-box;
 }
 
 body {
   counter-reset: zone shelf;
+}
+.title {
+  text-align: center;
+  font-size: 20px;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+polyline {
+  cursor: pointer;
 }
 
 .main {
@@ -28,20 +39,24 @@ svg {
   position: absolute;
 }
 
-.zone > div[data-zone] {
+.zone > div[data-zone],
+.zone > .zone_outter {
   height: 100px;
   width: 100%;
   border: 1px solid black;
   margin-bottom: 10px;
   display: flex;
   align-items: center;
-  justify-content: center;
   position: relative;
-  padding-left: 150px;
-  padding-right: 150px;
+  padding-left: 60px;
+  padding-right: 60px;
+}
+
+.zone > .zone_outter {
+  justify-content: flex-start;
 }
 .zone > div[data-zone].data {
-  height: 50px;
+  /* height: 50px; */
 }
 
 .zone > div:before {
@@ -97,13 +112,19 @@ svg {
 .shelf > div {
   border: 1px solid black;
   padding: 10px;
-  padding-top: 100px;
+  padding-top: 50px;
   width: 33%;
+
+  position: relative;
+}
+
+.shelf .shelf__block {
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: relative;
+  margin-top: 50px;
 }
+
 .shelf > div:before {
   position: absolute;
   content: '';
@@ -114,17 +135,6 @@ svg {
   transform: translateX(-50%);
   font-size: 30px;
 }
-
-/* .shelf-1 > .dragItem:nth-child(2n),
-.shelf-2 > .dragItem:nth-child(2n),
-.shelf-3 > .dragItem:nth-child(2n) {
-  background-color: blue;
-}
-.shelf-1 > .dragItem:nth-child(3n),
-.shelf-2 > .dragItem:nth-child(3n),
-.shelf-3 > .dragItem:nth-child(3n) {
-  background-color: red;
-} */
 
 .shelf .dragItem {
   margin-bottom: 20px;
@@ -179,29 +189,61 @@ svg {
   right: 0px;
 }
 
-.dropZone--active {
-  border: 5px dashed blue;
-}
+/*======================================================= */
+/* Сигналы */
 
-.zone .point {
+.signal {
   width: 10px;
   height: 10px;
   background-color: red;
   border-radius: 100%;
+  position: relative;
 }
 
-.point,
-.zone .dragItem {
-  margin-right: auto;
+.signal:hover:after {
+  content: attr(data-title);
+  color: black;
+  position: absolute;
+  right: -75px;
+  font-size: 14px;
 }
 
-.data-signal {
+.shelf .signal {
+  margin-bottom: 20px;
 }
 
-.data-signal_block {
+.signals {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  width: 30% !important;
+  height: 100%;
+  border: none !important;
+}
+
+.signals-data {
+  display: flex;
+  flex-direction: column;
+  margin-left: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.signals-data__block {
+  margin-bottom: 10px;
   display: none;
 }
 
-.data-signal_select {
-  cursor: pointer;
+.signals-data__input {
+  margin-left: 20px;
 }
+
+.signals-data__num {
+  margin-right: 10px;
+}
+
+/* .signals .signal:not(:last-child) {
+  margin-bottom: 10px;
+} */
