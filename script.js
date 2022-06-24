@@ -95,29 +95,48 @@ function handlerDropZone(e) {
     signal_block.style.display = 'flex'
   }
 
-  let itemInZone1
-  let itemInZone2
-  if (zoneId >= 2) {
-    itemInZone1 = document.querySelector(`.zone-${zoneId - 1}`)
-    if (!itemInZone1.classList.contains('zone-drop')) {
-      itemInZone1 = itemInZone1.querySelector('.zone-drop')
+  // let itemInZone1
+  // let itemInZone2
+  // if (zoneId >= 2) {
+  //   itemInZone1 = document.querySelector(`.zone-${zoneId - 1}`)
+  //   if (!itemInZone1.classList.contains('zone-drop')) {
+  //     itemInZone1 = itemInZone1.querySelector('.zone-drop')
+  //   }
+  // }
+
+  // if (zoneId < zones.length) {
+  //   itemInZone2 = document.querySelector(`.zone-${Number(zoneId) + 1}`)
+  //   if (!itemInZone2.classList.contains('zone-drop')) {
+  //     itemInZone2 = itemInZone2.querySelector('.zone-drop')
+  //   }
+  // }
+
+  // if (itemInZone1 && itemInZone1.hasChildNodes()) {
+  //   drawLine(itemInZone1.querySelector('div.dragItem'), dragItem)
+  // }
+
+  // if (itemInZone2 && itemInZone2.hasChildNodes()) {
+  //   drawLine(dragItem, itemInZone2.querySelector('div.dragItem'))
+  // }
+
+  // let itemInZone1
+  // let itemInZone2
+  // if (zoneId >= 2) {
+  //   itemInZone1 = document.querySelector(`.zone-${zoneId - 1}`)
+  //   if (!itemInZone1.classList.contains('zone-drop')) {
+  //     itemInZone1 = itemInZone1.querySelector('.zone-drop')
+  //   }
+  // }
+  zones.forEach(function (item, i) {
+    let zone = item.dataset.zone
+
+    if (item.querySelector('.dragItem') && zone > zoneId) {
+      drawLine(item.querySelector('.dragItem'), dragItem)
     }
-  }
-
-  if (zoneId < zones.length) {
-    itemInZone2 = document.querySelector(`.zone-${Number(zoneId) + 1}`)
-    if (!itemInZone2.classList.contains('zone-drop')) {
-      itemInZone2 = itemInZone2.querySelector('.zone-drop')
+    if (item.querySelector('.dragItem') && zone < zoneId) {
+      drawLine(dragItem, item.querySelector('.dragItem'))
     }
-  }
-
-  if (itemInZone1 && itemInZone1.hasChildNodes()) {
-    drawLine(itemInZone1.querySelector('div.dragItem'), dragItem)
-  }
-
-  if (itemInZone2 && itemInZone2.hasChildNodes()) {
-    drawLine(dragItem, itemInZone2.querySelector('div.dragItem'))
-  }
+  })
 }
 
 function handlerDragEnter(e) {
@@ -176,8 +195,6 @@ let zoneY = zone.getBoundingClientRect().top
 let zoneX = zone.getBoundingClientRect().left
 let zoneLocation = zone.getBoundingClientRect()
 let outOffset = document.querySelector('.dragItem_out1').getBoundingClientRect().width / 2 - 1
-console.log(zoneY)
-console.log(zoneX)
 
 function drawLine(item1, item2) {
   // if ((item1.dataset.signal || item2.dataset.signal) && document.querySelectorAll('.signals [data-signal]').length > 1) {
@@ -215,6 +232,11 @@ function drawLineFeedBack(block1, block2) {
   if (block1.dataset.item == block2.dataset.item) {
     return
   }
+  // Нельзя делать ос от верхнего блока к нижнему
+  if (block2.dataset.zone > block1.dataset.zone) {
+    return
+  }
+
   let line = document.createElementNS('http://www.w3.org/2000/svg', 'polyline')
   line.style.stroke = 'rgb(255, 0, 0)'
   line.style.strokeWidth = '2'
@@ -243,9 +265,9 @@ function drawLineFeedBack(block1, block2) {
     line.style.stroke = 'orange'
   }
 
-  points += `${x}, ${y} ` //1
+  points += `${x}, ${y} ` //1  точка
   y += 20
-  points += `${x}, ${y} ` // 2
+  points += `${x}, ${y} ` // 2 точка
   x += 80 + kefX
   points += `${x}, ${y} ` // 3
   y = react2.top - zoneLocation.top - 2 - 20
