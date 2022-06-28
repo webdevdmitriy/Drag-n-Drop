@@ -1,236 +1,21 @@
-/* Обнуление стилей  */
+/* Общие стили */
 * {
-  padding: 0;
-  margin: 0;
-  /* border: 0; */
-}
-*,
-*:before,
-*:after {
-  -moz-box-sizing: border-box;
-  -webkit-box-sizing: border-box;
   box-sizing: border-box;
 }
-:focus,
-:active {
-  outline: none;
-}
-a:focus,
-a:active {
-  outline: none;
-}
-
-nav,
-footer,
-header,
-aside {
-  display: block;
-}
-
-html,
-body {
-  height: 100%;
-  width: 100%;
-  font-size: 100%;
-  line-height: 1;
-  font-size: 14px;
-  -ms-text-size-adjust: 100%;
-  -moz-text-size-adjust: 100%;
-  -webkit-text-size-adjust: 100%;
-}
-input,
-button,
-textarea {
-  font-family: inherit;
-}
-
-/* input::-ms-clear {
-  display: none;
-} */
-button {
-  cursor: pointer;
-}
-button::-moz-focus-inner {
-  padding: 0;
-  border: 0;
-}
-a,
-a:visited {
-  text-decoration: none;
-}
-a:hover {
-  text-decoration: none;
-}
-ul li {
-  list-style: none;
-}
-img {
-  vertical-align: top;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-size: inherit;
-  font-weight: 400;
-}
-
-/* Обнуление стилей end  */
-
-body {
-  counter-reset: zone shelf;
-}
-.title {
-  text-align: center;
-  font-size: 20px;
-  text-transform: uppercase;
-  font-weight: bold;
-}
-
-polyline {
-  cursor: pointer;
-}
-
-.main {
-  display: flex;
-  justify-content: space-between;
-  margin: 0 auto;
-  max-width: 1500px;
-}
-
-.zone {
-  border: 1px solid black;
-  width: 800px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex-shrink: 0;
-  position: relative;
-  padding: 10px;
-  padding-top: 20px;
-}
-
-svg {
-  position: absolute;
-}
-
-.zone > div[data-zone],
-.zone > .zone_outter {
-  height: 100px;
-  width: 100%;
-  border: 1px solid black;
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  position: relative;
-  padding-left: 60px;
-  padding-right: 60px;
-}
-
-.zone > .zone_outter {
-  justify-content: flex-start;
-}
-.zone > div[data-zone].data {
-  /* height: 50px; */
-}
-
-.zone > div:before {
-  position: absolute;
-  content: '';
-  counter-increment: zone;
-  content: counter(zone);
-  left: 5px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 30px;
-}
-
-.zone .data {
-  height: 50px;
-  width: 100%;
-  border: 1px solid black;
-  margin-bottom: 10px;
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.zone .data input {
-  margin-left: 10px;
-}
-
-.dark-background:after {
-  content: '';
-  position: absolute;
-  background: rgba(0, 0, 0, 0.5);
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 100;
-}
-
-.shelf {
-  border: 1px solid red;
-  width: 100%;
-  height: 700px;
-  display: flex;
-  padding: 10px;
-  margin-left: 10px;
-  display: flex;
-  justify-content: space-between;
-}
-
-.shelf > div {
-  border: 1px solid black;
-  padding: 10px;
-  padding-top: 50px;
-  width: 33%;
-
-  position: relative;
-}
-
-.shelf .shelf__block {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 50px;
-}
-
-.shelf > div:before {
-  position: absolute;
-  content: '';
-  counter-increment: shelf;
-  content: counter(shelf);
-  left: 50%;
-  top: 0;
-  transform: translateX(-50%);
-  font-size: 30px;
-}
-
-.shelf .dragItem {
-  margin-bottom: 20px;
+.container {
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .dragItem {
-  width: 80px;
-  height: 80px;
-  background-color: orange;
-  color: #fff;
-  cursor: pointer;
-  position: relative;
-  z-index: 1;
   display: flex;
   align-items: center;
   text-align: center;
   justify-content: center;
-  font-size: 12px;
+  color: white;
+  cursor: pointer;
+  position: relative;
 }
 
 .dragItem_enter1,
@@ -269,61 +54,94 @@ svg {
   cursor: url('img/cursor.png'), auto;
 }
 
-/*======================================================= */
-/* Сигналы */
-
-.signal {
-  width: 10px;
-  height: 10px;
-  background-color: red;
-  border-radius: 100%;
-  position: relative;
-}
-
-.signal:hover:after {
-  content: attr(data-title);
-  color: black;
-  position: absolute;
-  right: -75px;
-  font-size: 14px;
-}
-
-.shelf .signal {
-  margin-bottom: 20px;
-}
-
-.signals {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+/* Основная секция */
+.main {
   padding-top: 20px;
-  padding-bottom: 20px;
-  width: 30% !important;
-  height: 100%;
-  border: none !important;
+}
+.main__inner {
+  display: flex;
+  justify-content: space-between;
 }
 
-.signals-data {
+/* Поля */
+.zones {
+  width: 300px;
+  position: relative;
+}
+
+svg {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
+.zones__inner {
+  padding-top: 30px;
+  padding-bottom: 30px;
+  width: 150px;
+  margin: 0 auto;
+}
+
+.zones .zone {
+  height: 150px;
+  width: 100%;
+  border: 1px solid black;
+  display: flex;
+  align-items: center;
+  padding-left: 25px;
+}
+.zones .zone-signal {
+  height: 100px;
+}
+
+.zone:not(:first-child) {
+  margin-top: 20px;
+}
+
+/* Полки с перетаскиваемыми объектами */
+.shelf {
+  width: 200px;
+  padding: 10px;
+  border: 1px solid black;
+
   display: flex;
   flex-direction: column;
-  margin-left: 20px;
-  position: relative;
-  z-index: 1;
+  justify-content: center;
+  align-items: center;
 }
 
-.signals-data__block {
-  margin-bottom: 10px;
+.shelf .dragItem:not(:first-child) {
+  margin-top: 20px;
+}
+
+/* Поля с инпутами */
+.data {
+  width: 400px;
+  padding-top: 30px;
+}
+.data__block {
+  padding: 10px;
+  width: 100%;
+  height: 150px;
+  border: 1px solid black;
+}
+
+.data__block:not(:first-child) {
+  margin-top: 20px;
+}
+
+.data__block-inner {
+  width: 200px;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5px;
   display: none;
 }
 
-.signals-data__input {
-  margin-left: 20px;
+.data__block-inner input {
+  width: 100px;
 }
 
-.signals-data__num {
-  margin-right: 10px;
+.data-signal {
+  height: 100px;
 }
-
-/* .signals .signal:not(:last-child) {
-  margin-bottom: 10px;
-} */

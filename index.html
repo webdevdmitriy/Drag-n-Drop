@@ -4,80 +4,63 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="normalize.css" />
     <link rel="stylesheet" href="style.css" />
-    <title>Drag'n'Drop</title>
+    <title>Drag'n'Drop v2</title>
   </head>
   <body>
-    <section class="main">
-      <article class="zone-outter">
-        <svg height="100%" width="100%"></svg>
-        <div class="zone">
-          <div class="zone-1 zone-drop" data-zone="1"></div>
-          <div class="zone-2" data-zone="2">
-            <div class="zone-drop signals"></div>
-
-            <div class="signals-data">
-              <div class="signals-data__block" data-signalBlock="1">
-                <label class="signals-data__num">Сигнал №1</label>
-                <select class="signals-data__select" name="" id="">
-                  <option value=""></option>
-                  <option value="1">Нагрузка руды</option>
-                  <option value="2">Расход воды</option>
-                  <option value="3">ПЛОТН-МД38</option>
-                </select>
-                <input class="signals-data__input" type="text" />
-              </div>
-              <div class="signals-data__block" data-signalBlock="2">
-                <label class="signals-data__num">Сигнал №2</label>
-                <select class="signals-data__select" name="" id="">
-                  <option value=""></option>
-                  <option value="1">Нагрузка руды</option>
-                  <option value="2">Расход воды</option>
-                  <option value="3">ПЛОТН-МД38</option>
-                </select>
-                <input class="signals-data__input" type="text" />
-              </div>
+    <main class="main">
+      <div class="container">
+        <div class="main__inner">
+          <div class="zones">
+            <svg></svg>
+            <div class="zones__inner">
+              <div class="zone" data-zone="1"></div>
+              <div class="zone zone-signal" data-zone="2"></div>
+              <div class="zone" data-zone="3"></div>
+              <div class="zone zone-signal" data-zone="4"></div>
             </div>
           </div>
-          <div class="zone-drop zone-3" data-zone="3"></div>
-          <div class="zone-drop zone-4" data-zone="4"></div>
-        </article>
-      </article>
-      <aside class="shelf">
-        <div class="shelf-1" data-shelf="1">
-          <div class="shelf__block">
-            <div class="dragItem" data-item="1" data-zone="1" draggable="true">Конвейр + Вода</div>
-            <div class="dragItem" data-item="2" data-zone="1" draggable="true" style="background-color: blue">МСЦ-8</div>
-            <div class="dragItem" data-item="3" data-zone="1" draggable="true" style="background-color: green">ММС-1 Вода</div>
+          <div class="data">
+            <div class="data__block" data-zone="1">
+              <div class="data__block-inner">
+                <div>
+                  <label for="">Текст</label>
+                  <input type="text" />
+                </div>
+                <div>
+                  <label for="">Текст</label>
+                  <input type="text" />
+                </div>
+                <div>
+                  <label for="">Текст</label>
+                  <input type="text" />
+                </div>
+              </div>
+            </div>
+            <div class="data__block data-signal" data-zone="2"></div>
+            <div class="data__block" data-zone="3">
+              <div class="data__block-inner">
+                <div>
+                  <label for="">Текст</label>
+                  <input type="text" />
+                </div>
+                <div>
+                  <label for="">Текст</label>
+                  <input type="text" />
+                </div>
+                <div>
+                  <label for="">Текст</label>
+                  <input type="text" />
+                </div>
+              </div>
+            </div>
+            <div class="data__block data-signal" data-zone="4"></div>
           </div>
+          <div class="shelf"></div>
         </div>
-        <div class="shelf-2" data-shelf="2">
-          <div class="title">Сигналы</div>
-          <div class="shelf__block">
-            <div class="dragItem signal" data-item="10" data-zone="2" data-signal="1" data-title="Сигнал №1" draggable="true"></div>
-            <div class="dragItem signal" data-item="11" data-zone="2" data-signal="2" data-title="Сигнал №2" draggable="true"></div>
-          </div>
-        </div>
-        <div class="shelf-3" data-shelf="3">
-          <div class="shelf__block">
-            <div class="dragItem" data-item="4" data-zone="3" draggable="true"></div>
-            <div class="dragItem" data-item="5" data-zone="3" draggable="true" style="background-color: blue"></div>
-            <div class="dragItem" data-item="6" data-zone="3" draggable="true" style="background-color: green"></div>
-          </div>
-        </div>
-        <div class="shelf-4" data-shelf="4">
-          <div class="shelf__block">
-            <div class="dragItem" data-item="7" data-zone="4" draggable="true"></div>
-            <div class="dragItem" data-item="8" data-zone="4" draggable="true" style="background-color: blue"></div>
-            <div class="dragItem" data-item="9" data-zone="4" draggable="true" style="background-color: green"></div>
-          </div>
-        </div>
-        <!-- <div class="dragItem" id="dragItem-1" data-zone="1" draggable="true"></div>
-        <div class="dragItem" id="dragItem-2" data-zone="2" draggable="true"></div>
-        <div class="dragItem" id="dragItem-3" data-zone="3" draggable="true"></div> -->
-      </aside>
-    </section>
-
+      </div>
+    </main>
     <script src="script.js"></script>
   </body>
 </html>
