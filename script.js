@@ -10,6 +10,10 @@ class Component {
   height = '100px'
 
   create() {
+    let div = document.createElement('div')
+    div.classList.add('shelf__block')
+    div.dataset.shelf = this.num
+    div.append(this.div)
     this.div.style.backgroundColor = this.color
     this.div.style.width = this.width
     this.div.style.height = this.height
@@ -17,7 +21,7 @@ class Component {
     this.div.dataset.item = this.num
     this.div.setAttribute('draggable', true)
     this.div.textContent = this.text
-    document.querySelector('.shelf').append(this.div)
+    document.querySelector('.shelf').append(div)
   }
 }
 Component.counter = 1
@@ -84,7 +88,8 @@ outs2.forEach(function (item) {
     enters2.forEach(function (item) {
       item.onclick = function () {
         let block2 = item.parentNode
-        drawLineFeedBack(block1, block2, block1.dataset.item, block2.dataset.item)
+        console.log('Клик2')
+        drawLineFeedBack(block1, block2)
       }
     })
   })
@@ -99,7 +104,6 @@ console.log('zones: ', zones)
 zones.forEach(item => (item.ondragover = e => e.preventDefault()))
 
 // Перетаскиваемые объекты
-
 dragsItems.forEach(item => {
   item.addEventListener('dragstart', handlerDragStart)
   // item.addEventListener('dragend', handlerDragEnd)
@@ -107,6 +111,16 @@ dragsItems.forEach(item => {
 
 function handlerDragStart(e) {
   e.dataTransfer.setData('item', e.target.dataset.item)
+
+  // Для удаление линий при перетаскивании обратно на полку
+  let zone
+  try {
+    zone = e.target.closest('[data-zone]').dataset.zone
+  } catch {
+    zone = null
+  }
+
+  e.dataTransfer.setData('zone', zone)
 }
 
 // Зоны для перетаскивания объектов
@@ -118,8 +132,7 @@ zones.forEach(dropZone => {
 
 function handlerDrop(e) {
   let item = e.dataTransfer.getData('item')
-  let zone = this.dataset.zone
-  console.log('zone: ', zone)
+  let zoneId = this.dataset.zone
 
   // Добавляем  блок в зону
   let dragItem = document.querySelector(`[data-item="${item}"]`)
@@ -131,26 +144,45 @@ function handlerDrop(e) {
   // Сигнал
   if (dragItem.classList.contains('signal') && this.classList.contains('zone-signal')) {
     this.append(dragItem)
+    //Показ блока с инпутами
+    document.querySelector(`.data [data-zone="${zone}"] .data-inner`) && (document.querySelector(`.data [data-zone="${zone}"] .data-inner`).style.display = 'block')
   }
   // Блок
-
   if (!dragItem.classList.contains('signal') && !this.classList.contains('zone-signal')) {
     this.append(dragItem)
-    document.querySelector(`.data__block[data-zone="${zone}"] .data__block-inner`) && (document.querySelector(`.data__block[data-zone="${zone}"] .data__block-inner`).style.display = 'block')
+    //Показ блока с инпутами
+    document.querySelector(`.data [data-zone="${zone}"] .data-inner`) && (document.querySelector(`.data [data-zone="${zone}"] .data-inner`).style.display = 'block')
   }
 
-  zones.forEach(function (item, i) {
-    let zoneWithBlock = item.dataset.zone
-    let dataItem1 = item.querySelector('.dragItem') && item.querySelector('.dragItem').dataset.item
-    let dataItem2 = dragItem.dataset.item
-
-    if (item.querySelector('.dragItem') && zone < zoneWithBlock) {
-      drawLine(item.querySelector('.dragItem'), dragItem, dataItem1, dataItem2)
-    }
-    if (item.querySelector('.dragItem') && zone > zoneWithBlock) {
-      drawLine(dragItem, item.querySelector('.dragItem'), dataItem1, dataItem2)
+  // Удаление линии, если вверху и внизу от перетаскиваемого(блока) есть блоки
+  lines = document.querySelectorAll('line')
+  // let itemId = dragItem.dataset.item
+  lines.forEach(function (line) {
+    let numbers = line.dataset.line.split('-').map(Number)
+    let [num1, num2] = line.dataset.line.split('-').map(Number)
+    if (num1 == +zoneId - 1 && num2 == +zoneId + 1) {
+      line.remove()
     }
   })
+
+  //  Рисуем линии
+  let zonesArray = [...zones]
+  for (let i = zoneId - 2; i >= 0; i--) {
+    if (zonesArray[i].querySelector('.dragItem')) {
+      let zone = zonesArray[i].dataset.zone
+
+      drawLine(zonesArray[i].querySelector('.dragItem'), dragItem, zone, zoneId)
+      break
+    }
+  }
+  for (let i = zoneId; i < zonesArray.length; i++) {
+    if (zonesArray[i].querySelector('.dragItem')) {
+      let zone = zonesArray[i].dataset.zone
+      console.log(12)
+      drawLine(dragItem, zonesArray[i].querySelector('.dragItem'), zone, zoneId)
+      break
+    }
+  }
 }
 
 // Перетаскивание объектов обратно на полку
@@ -160,27 +192,23 @@ shelf.addEventListener('drop', handlerDropShelf)
 
 function handlerDropShelf(e) {
   let item = e.dataTransfer.getData('item')
+  let zone = e.dataTransfer.getData('zone')
 
   let dragItem = document.querySelector(`[data-item="${item}"]`)
 
-  this.append(dragItem)
+  // Возвращаем элемент на свою позицию
+  document.querySelector(`[data-shelf="${item}"]`).append(dragItem)
 
   // Удаление линий
-  // document.querySelector(`line[data-line="${Number(zoneId)}-${Number(zoneId) + 1}"]`) && document.querySelector(`line[data-line="${Number(zoneId)}-${Number(zoneId) + 1}"]`).remove()
-  // document.querySelector(`line[data-line="${Number(zoneId) - 1}-${Number(zoneId)}"]`) && document.querySelector(`line[data-line="${Number(zoneId) - 1}-${Number(zoneId)}"]`).remove()
-
   lines = document.querySelectorAll('line')
-  let itemId = dragItem.dataset.item
-  lines.forEach(function (item) {
-    let numbers = item.dataset.line.split('-')
-    if (numbers.includes(itemId)) {
-      item.remove()
+
+  lines.forEach(function (line) {
+    let numbers = line.dataset.line.split('-')
+    console.log(numbers[1])
+    if (numbers.includes(zone) || numbers[1] == zone || numbers[0] == zone) {
+      line.remove()
     }
   })
-  // Удаление линий ОС
-
-  // document.querySelector(`polyline[data-line="${Number(zoneId)}-${Number(zoneId) - 1}"]`) && document.querySelector(`polyline[data-line="${Number(zoneId)}-${Number(zoneId) - 1}"]`).remove()
-  // document.querySelector(`polyline[data-line="${Number(zoneId) + 1}-${Number(zoneId)}"]`) && document.querySelector(`polyline[data-line="${Number(zoneId) + 1}-${Number(zoneId)}"]`).remove()
 
   // Удаление линий ОС
   polylines = document.querySelectorAll('polyline')
@@ -188,13 +216,13 @@ function handlerDropShelf(e) {
   polylines.forEach(function (item) {
     let numbers = item.dataset.line.split('-')
 
-    if (numbers.includes(itemId)) {
+    if (numbers.includes(zone)) {
       item.remove()
     }
   })
 
-  // Удаление инпутов сигналов
-  dragItem.dataset.signal && (document.querySelector(`[data-signalBlock="${dragItem.dataset.signal}"]`).style.display = 'none')
+  // Скрытие инпутов
+  document.querySelector(`.data [data-zone="${item}"] .data-inner`) && (document.querySelector(`.data [data-zone="${item}"] .data-inner`).style.display = 'none')
 }
 
 //===================================================================================
@@ -208,9 +236,9 @@ let outOffset = document.querySelector('.dragItem_out1').getBoundingClientRect()
 
 function drawLine(item1, item2, zoneid, zone) {
   // Если такая OC есть, возвращаем, ничего не рисуем
-  if (document.querySelector(`line[data-line="${item1.dataset.zone}-${item2.dataset.zone}"]`)) {
-    return
-  }
+  // if (document.querySelector(`line[data-line="${zoneid}-${zone}"]`)) {
+  //   return
+  // }
   let react1 = item1 && item1.getBoundingClientRect()
   let react2 = item2 && item2.getBoundingClientRect()
 
@@ -229,17 +257,19 @@ function drawLine(item1, item2, zoneid, zone) {
 }
 
 // Рисование линии обратной связи
-function drawLineFeedBack(block1, block2, item1, item2) {
+function drawLineFeedBack(block1, block2) {
+  console.log(1)
   // Если такая OC есть, возвращаем, ничего не рисуем
   if (document.querySelector(`polyline[data-line="${block1.dataset.zone}-${block2.dataset.zone}"]`)) {
     return
   }
+
   // Нельзя сделать обратную свзяь к тому же элементу
   if (block1.dataset.item == block2.dataset.item) {
     return
   }
   // Нельзя делать ос от верхнего блока к нижнему
-  if (block2.dataset.zone > block1.dataset.zone) {
+  if (block2.dataset.zone < block1.dataset.zone) {
     return
   }
 
@@ -286,7 +316,7 @@ function drawLineFeedBack(block1, block2, item1, item2) {
   points += `${x}, ${y} ` //6
 
   line.setAttribute('points', points)
-  line.dataset.line = `${item1}-${item2}`
+  line.dataset.line = `${block1.closest('[data-zone]').dataset.zone}-${block2.closest('[data-zone]').dataset.zone}`
   let svg = document.querySelector('svg')
   svg.append(line)
 

@@ -110,7 +110,7 @@ svg {
   align-items: center;
 }
 
-.shelf .dragItem:not(:first-child) {
+.shelf .shelf__block {
   margin-top: 20px;
 }
 
@@ -130,18 +130,33 @@ svg {
   margin-top: 20px;
 }
 
-.data__block-inner {
-  width: 200px;
+.data-inner {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   margin-top: 5px;
   display: none;
 }
 
-.data__block-inner input {
+.data-inner__block {
+  margin-bottom: 5px;
+}
+.data-inner__block input {
   width: 100px;
 }
 
 .data-signal {
   height: 100px;
+}
+.data-signal .data-inner__block {
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+.data-signal .data-inner__block label {
+}
+.data-signal .data-inner__block select {
+  margin-left: 10px;
+}
+.data-signal .data-inner__block input {
+  margin-left: 10px;
 }
