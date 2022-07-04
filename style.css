@@ -95,7 +95,14 @@ svg {
   padding-left: 25px;
 }
 .zones .zone-signal {
-  height: 100px;
+  height: 200px;
+  flex-direction: column;
+  align-items: start;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+.zones .zone-signal .dragItem:not(:first-child) {
+  margin-top: 10px;
 }
 
 .zone:not(:first-child) {
@@ -148,7 +155,7 @@ svg {
 }
 
 .data-signal {
-  height: 100px;
+  height: 200px;
 }
 .data-signal .data-inner__block {
   width: 100%;

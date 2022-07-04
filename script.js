@@ -59,10 +59,20 @@ let block4 = new Signal({
 })
 block4.create()
 let block5 = new Signal({
-  color: 'purple',
+  color: 'orange',
   text: 'Сигнал',
 })
 block5.create()
+let block6 = new Signal({
+  color: 'purple',
+  text: 'Сигнал',
+})
+block6.create()
+let block7 = new Signal({
+  color: 'purple',
+  text: 'Сигнал',
+})
+block7.create()
 
 // Сохраняем разметку в LS
 //===================================================================
@@ -116,10 +126,11 @@ outs2.forEach(function (item) {
 })
 //
 //========================================================
+//========================================================
+//========================================================
 
 const dragsItems = document.querySelectorAll('.dragItem')
 const zones = document.querySelectorAll('.zones [data-zone]')
-console.log('zones: ', zones)
 
 zones.forEach(item => (item.ondragover = e => e.preventDefault()))
 
@@ -189,29 +200,75 @@ function handlerDrop(e) {
     }
   })
 
-  //  Рисуем линии
   let zonesArray = [...zones]
-  for (let i = zoneId - 2, counter = 0; i >= 0; i--, counter++) {
-    // Линии проводяет только до ближайших двух зон
-    if (counter == 2) {
-      break
+
+  // Если бросаем сигнал
+  if (dragItem.classList.contains('signal')) {
+    let signals = [...this.querySelectorAll('.signal')]
+    let signal1 = signals[signals.length - 2]
+    let signal2 = signals[signals.length - 1]
+    if (signals.length >= 2) {
+      drawLine(signal1, signal2, signal1.dataset.item, signal2.dataset.item)
     }
-    if (zonesArray[i].querySelector('.dragItem')) {
-      let zone = zonesArray[i].dataset.zone
-      drawLine(zonesArray[i].querySelector('.dragItem'), dragItem, zone, zoneId)
-    }
-  }
-  for (let i = zoneId, counter = 0; i < zonesArray.length; i++, counter++) {
-    if (zonesArray[i].querySelector('.dragItem')) {
-      let zone = zonesArray[i].dataset.zone
+    for (let i = zoneId - 2, counter = 0; i >= 0; i--, counter++) {
       // Линии проводяет только до ближайших двух зон
       if (counter == 2) {
         break
       }
-      drawLine(dragItem, zonesArray[i].querySelector('.dragItem'), zone, zoneId)
-      break
+      if (zonesArray[i].querySelector('.dragItem')) {
+        let zone = zonesArray[i].dataset.zone
+
+        drawLine(zonesArray[i].querySelector('.dragItem'), signals[0], zone, zoneId)
+      }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    for (let i = zoneId, counter = 0; i < zonesArray.length; i++, counter++) {
+      if (zonesArray[i].querySelector('.dragItem')) {
+        let zone = zonesArray[i].dataset.zone
+        // Линии проводяет только до ближайших двух зон
+        if (counter == 2) {
+          break
+        }
+
+        drawLine(signals[signals.length - 1], zonesArray[i].querySelector('.dragItem'), zone, zoneId)
+
+        lines = document.querySelectorAll('line')
+        // let itemId = dragItem.dataset.item
+        lines.forEach(function (line) {
+          let numbers = line.dataset.line.split('-').map(Number)
+          let [num1, num2] = line.dataset.line.split('-').map(Number)
+          if (num2 == +zoneId + 1) {
+            line.remove()
+          }
+        })
+      }
     }
   }
+
+  //  Рисуем линии
+  // let zonesArray = [...zones]
+  // for (let i = zoneId - 2, counter = 0; i >= 0; i--, counter++) {
+  //   // Линии проводяет только до ближайших двух зон
+  //   if (counter == 2) {
+  //     break
+  //   }
+  //   if (zonesArray[i].querySelector('.dragItem')) {
+  //     let zone = zonesArray[i].dataset.zone
+  //     drawLine(zonesArray[i].querySelector('.dragItem'), dragItem, zone, zoneId)
+  //   }
+  // }
+  // for (let i = zoneId, counter = 0; i < zonesArray.length; i++, counter++) {
+  //   if (zonesArray[i].querySelector('.dragItem')) {
+  //     let zone = zonesArray[i].dataset.zone
+  //     // Линии проводяет только до ближайших двух зон
+  //     if (counter == 2) {
+  //       break
+  //     }
+  //     drawLine(dragItem, zonesArray[i].querySelector('.dragItem'), zone, zoneId)
+  //     break
+  //   }
+  // }
   saveHTMLToLS()
 }
 
@@ -263,10 +320,10 @@ let zoneLocation = zone.getBoundingClientRect()
 let outOffset = document.querySelector('.dragItem_out1').getBoundingClientRect().width / 2 - 1
 
 function drawLine(item1, item2, zoneid, zone) {
-  // Если такая OC есть, возвращаем, ничего не рисуем
-  // if (document.querySelector(`line[data-line="${zoneid}-${zone}"]`)) {
-  //   return
-  // }
+  //Если такая OC есть, возвращаем, ничего не рисуем
+  if (document.querySelector(`line[data-line="${zoneid}-${zone}"]`)) {
+    return
+  }
   let react1 = item1 && item1.getBoundingClientRect()
   let react2 = item2 && item2.getBoundingClientRect()
 
