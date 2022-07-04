@@ -10,10 +10,13 @@ class Component {
   height = '100px'
 
   create() {
-    let div = document.createElement('div')
-    div.classList.add('shelf__block')
-    div.dataset.shelf = this.num
-    div.append(this.div)
+    this.divOuter = document.createElement('div')
+    this.divOuter.classList.add('shelf__block')
+    this.divOuter.style.width = this.width
+    this.divOuter.style.height = this.height
+
+    this.divOuter.dataset.shelf = this.num
+    this.divOuter.append(this.div)
     this.div.style.backgroundColor = this.color
     this.div.style.width = this.width
     this.div.style.height = this.height
@@ -21,7 +24,7 @@ class Component {
     this.div.dataset.item = this.num
     this.div.setAttribute('draggable', true)
     this.div.textContent = this.text
-    document.querySelector('.shelf').append(div)
+    document.querySelector('.shelf').append(this.divOuter)
   }
 }
 Component.counter = 1
@@ -60,9 +63,23 @@ let block5 = new Signal({
   text: 'Сигнал',
 })
 block5.create()
+
+// Сохраняем разметку в LS
+//===================================================================
+const main = document.querySelector('.main')
+if (localStorage.getItem('mainHTML')) {
+  main.innerHTML = localStorage.getItem('mainHTML')
+}
+function saveHTMLToLS() {
+  localStorage.setItem('mainHTML', main.innerHTML)
+}
+document.querySelector('.clearLS').addEventListener('click', function () {
+  localStorage.clear()
+  location.reload()
+})
 // ==================================================================================================
 // Добавление входов и выходов для каждого блока
-let dragsItemsWithoutSignals = document.querySelectorAll('.dragItem:not(.signal)')
+let dragsItemsWithoutSignals = document.querySelectorAll('.dragItem')
 dragsItemsWithoutSignals.forEach(function (item) {
   let enter1 = document.createElement('span')
   let enter2 = document.createElement('span')
@@ -73,9 +90,13 @@ dragsItemsWithoutSignals.forEach(function (item) {
   out1.classList.add('dragItem_out1')
   out2.classList.add('dragItem_out2')
   item.append(enter1)
-  item.append(enter2)
   item.append(out1)
-  item.append(out2)
+
+  // Не добавляем вторые вход и выход для сигналов
+  if (!item.classList.contains('signal')) {
+    item.append(out2)
+    item.append(enter2)
+  }
 })
 
 let outs2 = document.querySelectorAll('.dragItem_out2')
@@ -88,7 +109,6 @@ outs2.forEach(function (item) {
     enters2.forEach(function (item) {
       item.onclick = function () {
         let block2 = item.parentNode
-        console.log('Клик2')
         drawLineFeedBack(block1, block2)
       }
     })
@@ -106,7 +126,7 @@ zones.forEach(item => (item.ondragover = e => e.preventDefault()))
 // Перетаскиваемые объекты
 dragsItems.forEach(item => {
   item.addEventListener('dragstart', handlerDragStart)
-  // item.addEventListener('dragend', handlerDragEnd)
+  item.addEventListener('dragend', handlerDragEnd)
 })
 
 function handlerDragStart(e) {
@@ -121,6 +141,12 @@ function handlerDragStart(e) {
   }
 
   e.dataTransfer.setData('zone', zone)
+
+  // Изменение z index у svg, чтобы svg ушла на второй план и можно было переместить элемент
+  document.querySelector('svg').style.zIndex = '-1'
+}
+function handlerDragEnd() {
+  document.querySelector('svg').style.zIndex = '0'
 }
 
 // Зоны для перетаскивания объектов
@@ -138,20 +164,18 @@ function handlerDrop(e) {
   let dragItem = document.querySelector(`[data-item="${item}"]`)
   // this.append(dragItem)
 
-  // Показываем инпуты
-
   // Сигнал или обычный блок
   // Сигнал
   if (dragItem.classList.contains('signal') && this.classList.contains('zone-signal')) {
     this.append(dragItem)
     //Показ блока с инпутами
-    document.querySelector(`.data [data-zone="${zone}"] .data-inner`) && (document.querySelector(`.data [data-zone="${zone}"] .data-inner`).style.display = 'block')
+    document.querySelector(`.data [data-zone="${zoneId}"] .data-inner`) && (document.querySelector(`.data [data-zone="${zoneId}"] .data-inner`).style.display = 'block')
   }
   // Блок
   if (!dragItem.classList.contains('signal') && !this.classList.contains('zone-signal')) {
     this.append(dragItem)
     //Показ блока с инпутами
-    document.querySelector(`.data [data-zone="${zone}"] .data-inner`) && (document.querySelector(`.data [data-zone="${zone}"] .data-inner`).style.display = 'block')
+    document.querySelector(`.data [data-zone="${zoneId}"] .data-inner`) && (document.querySelector(`.data [data-zone="${zoneId}"] .data-inner`).style.display = 'block')
   }
 
   // Удаление линии, если вверху и внизу от перетаскиваемого(блока) есть блоки
@@ -167,22 +191,28 @@ function handlerDrop(e) {
 
   //  Рисуем линии
   let zonesArray = [...zones]
-  for (let i = zoneId - 2; i >= 0; i--) {
-    if (zonesArray[i].querySelector('.dragItem')) {
-      let zone = zonesArray[i].dataset.zone
-
-      drawLine(zonesArray[i].querySelector('.dragItem'), dragItem, zone, zoneId)
+  for (let i = zoneId - 2, counter = 0; i >= 0; i--, counter++) {
+    // Линии проводяет только до ближайших двух зон
+    if (counter == 2) {
       break
     }
-  }
-  for (let i = zoneId; i < zonesArray.length; i++) {
     if (zonesArray[i].querySelector('.dragItem')) {
       let zone = zonesArray[i].dataset.zone
-      console.log(12)
+      drawLine(zonesArray[i].querySelector('.dragItem'), dragItem, zone, zoneId)
+    }
+  }
+  for (let i = zoneId, counter = 0; i < zonesArray.length; i++, counter++) {
+    if (zonesArray[i].querySelector('.dragItem')) {
+      let zone = zonesArray[i].dataset.zone
+      // Линии проводяет только до ближайших двух зон
+      if (counter == 2) {
+        break
+      }
       drawLine(dragItem, zonesArray[i].querySelector('.dragItem'), zone, zoneId)
       break
     }
   }
+  saveHTMLToLS()
 }
 
 // Перетаскивание объектов обратно на полку
@@ -229,8 +259,6 @@ function handlerDropShelf(e) {
 // Рисуем линии
 
 const zone = document.querySelector('.zones')
-let zoneY = zone.getBoundingClientRect().top
-let zoneX = zone.getBoundingClientRect().left
 let zoneLocation = zone.getBoundingClientRect()
 let outOffset = document.querySelector('.dragItem_out1').getBoundingClientRect().width / 2 - 1
 
@@ -241,6 +269,19 @@ function drawLine(item1, item2, zoneid, zone) {
   // }
   let react1 = item1 && item1.getBoundingClientRect()
   let react2 = item2 && item2.getBoundingClientRect()
+
+  // Меняем координаты точек при изменении размеров экрана
+  window.addEventListener('resize', function () {
+    const zoneLocation = document.querySelector('.zones').getBoundingClientRect()
+    let delta1 = item1.getBoundingClientRect().left - zoneLocation.left + outOffset
+    let delta2 = item2.getBoundingClientRect().left - zoneLocation.left + outOffset
+
+    const lines = this.document.querySelectorAll('line')
+    lines.forEach(function (item) {
+      item.setAttribute('x1', delta1)
+      item.setAttribute('x2', delta2)
+    })
+  })
 
   let line = document.createElementNS('http://www.w3.org/2000/svg', 'line')
   line.style.stroke = 'rgb(255, 0, 0)'
@@ -258,9 +299,9 @@ function drawLine(item1, item2, zoneid, zone) {
 
 // Рисование линии обратной связи
 function drawLineFeedBack(block1, block2) {
-  console.log(1)
   // Если такая OC есть, возвращаем, ничего не рисуем
-  if (document.querySelector(`polyline[data-line="${block1.dataset.zone}-${block2.dataset.zone}"]`)) {
+
+  if (document.querySelector(`polyline[data-line="${block1.closest('[data-zone]').dataset.zone}-${block2.closest('[data-zone]').dataset.zone}"]`)) {
     return
   }
 
@@ -272,6 +313,23 @@ function drawLineFeedBack(block1, block2) {
   if (block2.dataset.zone < block1.dataset.zone) {
     return
   }
+
+  // // Меняем координаты точек при изменении размеров экрана
+  // window.addEventListener('resize', function () {
+  //   const zoneLocation = document.querySelector('.zones').getBoundingClientRect()
+  //   let delta1 = block1.getBoundingClientRect().left - zoneLocation.left + outOffset
+  //   let delta2 = block2.getBoundingClientRect().left - zoneLocation.left + outOffset
+
+  //   const polylines = this.document.querySelectorAll('polyline')
+  //   polylines.forEach(function (item) {
+  //     let points = item.getAttribute('points')
+  //     console.log('points: ', points)
+  //     let points1 = points.split(',')
+  //     console.log('points1: ', points1)
+  //     let points2 = points1.map(item => item.split(' ')).map(item => Number(item[2]) + delta1)
+  //     console.log('points2: ', points2)
+  //   })
+  // })
 
   let line = document.createElementNS('http://www.w3.org/2000/svg', 'polyline')
   line.style.stroke = 'rgb(255, 0, 0)'
@@ -290,19 +348,23 @@ function drawLineFeedBack(block1, block2) {
   let polylines = document.querySelectorAll('polyline')
   let kefX = 0
   let kefY = 0
+
+  // Если уже есть линия Ос
   if (polylines.length == 1) {
     kefX = 20
     kefY = 5
     line.style.stroke = 'green'
   }
+
+  // Если уже есть 2 линии Ос
   if (polylines.length == 2) {
-    kefX = 40
+    kefX = 30
     kefY = 10
     line.style.stroke = 'orange'
   }
 
   points += `${x}, ${y} ` //1  точка
-  y += 20
+  y += 20 + kefY
   points += `${x}, ${y} ` // 2 точка
   x += 20 + kefX
   points += `${x}, ${y} ` // 3

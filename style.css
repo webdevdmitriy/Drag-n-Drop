@@ -24,7 +24,7 @@
   display: block;
   width: 10px;
   height: 10px;
-  background-color: red;
+  background-color: lime;
   position: absolute;
   z-index: 2;
   top: 0px;
@@ -37,7 +37,7 @@
   display: block;
   width: 10px;
   height: 10px;
-  background-color: purple;
+  background-color: red;
   position: absolute;
   z-index: 2;
   bottom: 0px;
@@ -52,6 +52,10 @@
   left: auto;
   right: 0px;
   cursor: url('img/cursor.png'), auto;
+}
+
+polyline {
+  cursor: pointer;
 }
 
 /* Основная секция */
@@ -73,7 +77,7 @@ svg {
   position: absolute;
   width: 100%;
   height: 100%;
-  z-index: -1;
+  z-index: 0;
 }
 .zones__inner {
   padding-top: 30px;
@@ -106,7 +110,6 @@ svg {
 
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
 }
 
@@ -160,3 +163,10 @@ svg {
 .data-signal .data-inner__block input {
   margin-left: 10px;
 }
+
+/* LS */
+.clearLS {
+  display: block;
+  margin: 0 auto;
+}
+/* LS end */
