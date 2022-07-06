@@ -146,6 +146,9 @@ svg {
   margin-top: 5px;
   display: none;
 }
+.data-signal .data-inner {
+  display: block;
+}
 
 .data-inner__block {
   margin-bottom: 5px;

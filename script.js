@@ -33,6 +33,7 @@ class Signal extends Component {
   constructor(options) {
     super(options)
     this.div.classList.add('signal')
+    this.div.classList.add('signal-main')
     this.num = 10
   }
   width = '50px'
@@ -131,6 +132,7 @@ outs2.forEach(function (item) {
 //========================================================
 
 const zones = document.querySelectorAll('.zones [data-zone]')
+let zonesArray = [...zones] // все зоны
 
 zones.forEach(item => (item.ondragover = e => e.preventDefault()))
 
@@ -153,17 +155,11 @@ function getNewDragsItems() {
 let dragSrcEl
 function handlerDragStart(e) {
   e.dataTransfer.setData('item', e.target.dataset.item)
+  e.target.closest('.zone') && e.dataTransfer.setData('zone', e.target.closest('.zone').dataset.zone)
 
-  // Для удаление линий при перетаскивании обратно на полку
-  let zone
-  try {
-    zone = e.target.closest('[data-zone]').dataset.zone
-  } catch {
-    zone = null
-  }
   dragSrcEl = this
 
-  e.dataTransfer.setData('zone', zone)
+  // e.dataTransfer.setData('zone', zone)
 
   // Изменение z index у svg, чтобы svg ушла на второй план и можно было переместить элемент
   document.querySelector('svg').style.zIndex = '-1'
@@ -205,12 +201,10 @@ function handlerDrop(e) {
       let counter = localStorage.getItem('counterItems')
       const atrDataNew = +clone.dataset.item + counter++
       clone.dataset.item = atrDataNew
+      clone.classList.remove('signal-main')
       localStorage.setItem('counterItems', counter)
       this.append(clone)
     }
-
-    //Показ блока с инпутами
-    document.querySelector(`.data [data-zone="${zoneId}"] .data-inner`) && (document.querySelector(`.data [data-zone="${zoneId}"] .data-inner`).style.display = 'block')
   }
   // Блок
   if (!dragItem.classList.contains('signal') && !this.classList.contains('zone-signal')) {
@@ -219,16 +213,30 @@ function handlerDrop(e) {
     document.querySelector(`.data [data-zone="${zoneId}"] .data-inner`) && (document.querySelector(`.data [data-zone="${zoneId}"] .data-inner`).style.display = 'block')
   }
 
+  //Показ блока с инпутами
+
+  const dataBlock = document.querySelector(`.data [data-zone="${zoneId}"] .data-inner`)
+  if (dataBlock.closest('.data-signal')) {
+    const div = document.createElement('div')
+    div.classList.add('data-inner__block')
+    const label = document.createElement('label')
+    label.textContent = 'Текст'
+    const select = document.createElement('select')
+    const input = document.createElement('input')
+    div.append(label)
+    div.append(select)
+    div.append(input)
+    dataBlock.append(div)
+  }
+
   // Рисуем линии
 
-  let zonesArray = [...zones] // все зоны
   lines = document.querySelectorAll('line') // все нарисованные линии
 
+  // Рисуем линии между сигналами
   let signals = [...this.querySelectorAll('.signal')] // линии между сигналами
   let signal2 = signals[signals.length - 1] // Последний сигнал
   let signal1 = signals[signals.length - 2] // Предпоследний сигнал
-
-  // Рисуем линии между сигналами
   if (signals.length >= 2) {
     drawLine(signal1, signal2, signal1.dataset.item, signal2.dataset.item, true)
   }
@@ -242,11 +250,16 @@ function handlerDrop(e) {
 
     if (zonesArray[i].querySelector('.dragItem')) {
       let zone = zonesArray[i].dataset.zone
+
       if (dragItem.classList.contains('signal')) {
-        drawLine(zonesArray[i].querySelector('.dragItem'), signals[0], zone, zoneId)
-        deleteLineBetweenZoneAndSignals('up') // Удаляем линию между зоной и сигналом
+        let item1 = zonesArray[i].querySelector('.dragItem')
+        let item2 = signals[0]
+        drawLine(item1, item2, item1.dataset.item, item2.dataset.item)
+        // deleteLineBetweenZoneAndSignals('up') // Удаляем линию между зоной и сигналом
       } else {
-        drawLine(dragItemsInzone[dragItemsInzone.length - 1], dragItem, zone, zoneId)
+        let item1 = dragItemsInzone[dragItemsInzone.length - 1]
+        let item2 = dragItem
+        drawLine(item1, item2, item1.dataset.item, item2.dataset.item)
       }
 
       break
@@ -256,28 +269,44 @@ function handlerDrop(e) {
   // Чекаем зоны снизу
   for (let i = zoneId, counter = 0; i < zonesArray.length, counter <= 1; i++, counter++) {
     if (i >= zonesArray.length) break
-
     const dragItemsInzone = zonesArray[i].querySelectorAll('.dragItem')
     if (zonesArray[i].querySelector('.dragItem')) {
       let zone = zonesArray[i].dataset.zone
       // Линии проводяет только до ближайших двух зон
 
       if (dragItem.classList.contains('signal')) {
-        drawLine(signals[signals.length - 1], zonesArray[i].querySelector('.dragItem'), zoneId, zone)
-        deleteLineBetweenZoneAndSignals('down') // Удаляем линию между зоной и сигналом
+        let item1 = signals[signals.length - 1]
+        let item2 = zonesArray[i].querySelector('.dragItem')
+        drawLine(item1, item2, item1.dataset.item, item2.dataset.item)
+        deleteLineBetweenZoneAndSignals(down) // Удаляем линию между зоной и сигналом
       } else {
-        drawLine(dragItem, dragItemsInzone[0], zoneId, zone)
+        drawLine(dragItem, dragItemsInzone[0], dragItem.dataset.item, dragItemsInzone[0].dataset.item)
       }
       break
     }
   }
 
+  // function deleteLineBetweenZoneAndSignals(direction) {
+  //   operand = direction == 'up' ? 1 : -1
+  //   lines.forEach(function (line) {
+  //     let [num1, num2] = line.dataset.line.split('-').map(Number)
+  //     if (num2 == +zoneId + operand && num1 == +zoneId && !line.dataset.isSignal) {
+  //       line.remove()
+  //     }
+  //   })
+  // }
   function deleteLineBetweenZoneAndSignals(direction) {
-    operand = direction == 'up' ? 1 : -1
+    let operand = direction == 'down' ? 1 : -1
     lines.forEach(function (line) {
-      let [num1, num2] = line.dataset.line.split('-').map(Number)
-      if (num2 == +zoneId + operand && num1 == +zoneId && !line.dataset.isSignal) {
+      let numbers = line.dataset.line.split('-').map(Number)
+      let zone = document.querySelector(`[data-zone="${+zoneId + operand}"]`)
+      let item
+      if (zone.querySelector('.dragItem')) {
+        item = zone.querySelector('.dragItem').dataset.item
+      }
+      if (numbers.includes(+item)) {
         line.remove()
+        console.log(12)
       }
     })
   }
@@ -290,19 +319,13 @@ shelf.ondragover = e => e.preventDefault()
 shelf.addEventListener('drop', handlerDropShelf)
 
 function handlerDropShelf(e) {
-  let item = e.dataTransfer.getData('item')
+  let item = dragSrcEl.dataset.item
 
-  let zone = e.dataTransfer.getData('zone')
-
-  let dragItem = document.querySelector(`[data-item="${item}"]`)
-  // let dragItem = dragSrcEl
-
-  if (dragSrcEl.classList.contains('signal') && zone != 'null') {
-    //  dragItem.remove()
+  if (dragSrcEl.classList.contains('signal') && !dragSrcEl.classList.contains('signal-main')) {
     dragSrcEl.remove()
   } else {
     // Возвращаем элемент на свою позицию
-    document.querySelector(`[data-shelf="${item}"]`).append(dragItem)
+    document.querySelector(`[data-shelf="${item}"]`).append(dragSrcEl)
   }
 
   // Удаление линий
@@ -310,22 +333,63 @@ function handlerDropShelf(e) {
 
   lines.forEach(function (line) {
     let numbers = line.dataset.line.split('-')
+    let itemId = dragSrcEl.dataset.item
 
-    let signalsInThisZone = [...document.querySelectorAll(`[data-zone="${zone}"] .signal`)]
-    // Линия между сигналом и соседней секцией удаляется, если нет больше сигналов
-    console.log(numbers)
-    console.log(zone)
-    if (numbers[1] == zone && !line.dataset.isSignal) {
-      line.remove()
-    } else if (numbers[0] == zone && !line.dataset.isSignal) {
-      line.remove()
-    }
-
-    // Если линии между сигналами
-    if (dragSrcEl.classList.contains('signal') && line.dataset.isSignal && numbers.includes(dragSrcEl.dataset.item)) {
+    if (numbers.includes(itemId)) {
       line.remove()
     }
   })
+
+  //======================================================================
+  // Перерисовываем нафиг все линии в зоне с сигналами
+  let zone = e.dataTransfer.getData('zone')
+  const currentZone = document.querySelector(`[data-zone="${zone}"]`)
+  let currentZoneDragItems = [...currentZone.querySelectorAll('.dragItem')]
+
+  // Удаляем все линии
+  for (let elem of currentZoneDragItems) {
+    lines.forEach(function (line) {
+      let numbers = line.dataset.line.split('-')
+      let itemId = elem.dataset.item
+
+      if (numbers.includes(itemId)) {
+        line.remove()
+      }
+    })
+  }
+
+  //
+  if (currentZoneDragItems.length > 1) {
+    for (let i = 0; i < currentZoneDragItems.length; i++) {
+      let elem1 = currentZoneDragItems[i]
+      let elem2 = currentZoneDragItems[++i]
+      drawLine(elem1, elem2, elem1.dataset.item, elem2.dataset.item, true)
+    }
+  }
+
+  // Чекаем зоны снизу
+  for (let i = zone, counter = 0; i < zonesArray.length, counter <= 1; i++, counter++) {
+    if (i >= zonesArray.length) break
+    const dragItemsInzone = zonesArray[i].querySelectorAll('.dragItem')
+    if (zonesArray[i].querySelector('.dragItem')) {
+      let item1 = currentZoneDragItems[currentZoneDragItems.length - 1]
+      let item2 = dragItemsInzone[0]
+      drawLine(item1, item2, item1.dataset.item, item2.dataset.item)
+      break
+    }
+  }
+
+  for (let i = zone - 2, counter = 0; i >= 0, counter <= 1; i--, counter++) {
+    if (i < 0) break // Если первая зона
+    if (i >= zonesArray.length) break
+    const dragItemsInzone = zonesArray[i].querySelectorAll('.dragItem')
+    if (zonesArray[i].querySelector('.dragItem')) {
+      let item1 = currentZoneDragItems[0]
+      let item2 = dragItemsInzone[dragItemsInzone.length - 1]
+      drawLine(item1, item2, item1.dataset.item, item2.dataset.item)
+      break
+    }
+  }
 
   // Удаление линий ОС
   polylines = document.querySelectorAll('polyline')
