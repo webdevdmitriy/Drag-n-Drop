@@ -33,6 +33,7 @@ class Signal extends Component {
   constructor(options) {
     super(options)
     this.div.classList.add('signal')
+    this.num = 10
   }
   width = '50px'
   height = '50px'
@@ -58,21 +59,21 @@ let block4 = new Signal({
   text: 'Сигнал',
 })
 block4.create()
-let block5 = new Signal({
-  color: 'orange',
-  text: 'Сигнал',
-})
-block5.create()
-let block6 = new Signal({
-  color: 'purple',
-  text: 'Сигнал',
-})
-block6.create()
-let block7 = new Signal({
-  color: 'purple',
-  text: 'Сигнал',
-})
-block7.create()
+// let block5 = new Signal({
+//   color: 'orange',
+//   text: 'Сигнал',
+// })
+// block5.create()
+// let block6 = new Signal({
+//   color: 'purple',
+//   text: 'Сигнал',
+// })
+// block6.create()
+// let block7 = new Signal({
+//   color: 'purple',
+//   text: 'Сигнал',
+// })
+// block7.create()
 
 // Сохраняем разметку в LS
 //===================================================================
@@ -129,17 +130,27 @@ outs2.forEach(function (item) {
 //========================================================
 //========================================================
 
-const dragsItems = document.querySelectorAll('.dragItem')
 const zones = document.querySelectorAll('.zones [data-zone]')
 
 zones.forEach(item => (item.ondragover = e => e.preventDefault()))
 
+let dragsItems = document.querySelectorAll('.dragItem')
 // Перетаскиваемые объекты
 dragsItems.forEach(item => {
   item.addEventListener('dragstart', handlerDragStart)
   item.addEventListener('dragend', handlerDragEnd)
 })
 
+// Получаем в коллекцию новые элементы
+function getNewDragsItems() {
+  dragsItems = document.querySelectorAll('.dragItem')
+  dragsItems.forEach(item => {
+    item.addEventListener('dragstart', handlerDragStart)
+    item.addEventListener('dragend', handlerDragEnd)
+  })
+}
+
+let dragSrcEl
 function handlerDragStart(e) {
   e.dataTransfer.setData('item', e.target.dataset.item)
 
@@ -150,6 +161,7 @@ function handlerDragStart(e) {
   } catch {
     zone = null
   }
+  dragSrcEl = this
 
   e.dataTransfer.setData('zone', zone)
 
@@ -158,6 +170,8 @@ function handlerDragStart(e) {
 }
 function handlerDragEnd() {
   document.querySelector('svg').style.zIndex = '0'
+  // Получаем в коллекцию новые элементы
+  getNewDragsItems()
 }
 
 // Зоны для перетаскивания объектов
@@ -170,6 +184,7 @@ zones.forEach(dropZone => {
 //==================================================================================================
 //==================================================================================================
 //==================================================================================================
+
 // Перетаскиваем объекты в зоны
 function handlerDrop(e) {
   let item = e.dataTransfer.getData('item')
@@ -180,8 +195,20 @@ function handlerDrop(e) {
 
   // Сигнал или обычный блок. Отображаем инпуты данных
   // Сигнал
+
   if (dragItem.classList.contains('signal') && this.classList.contains('zone-signal')) {
-    this.append(dragItem)
+    !localStorage.getItem('counterItems') && localStorage.setItem('counterItems', 1)
+
+    // Сколько можно расположить сигналов
+    if (this.querySelectorAll('.dragItem').length < 3) {
+      const clone = dragItem.cloneNode(true)
+      let counter = localStorage.getItem('counterItems')
+      const atrDataNew = +clone.dataset.item + counter++
+      clone.dataset.item = atrDataNew
+      localStorage.setItem('counterItems', counter)
+      this.append(clone)
+    }
+
     //Показ блока с инпутами
     document.querySelector(`.data [data-zone="${zoneId}"] .data-inner`) && (document.querySelector(`.data [data-zone="${zoneId}"] .data-inner`).style.display = 'block')
   }
@@ -236,10 +263,10 @@ function handlerDrop(e) {
       // Линии проводяет только до ближайших двух зон
 
       if (dragItem.classList.contains('signal')) {
-        drawLine(signals[signals.length - 1], zonesArray[i].querySelector('.dragItem'), zone, zoneId)
+        drawLine(signals[signals.length - 1], zonesArray[i].querySelector('.dragItem'), zoneId, zone)
         deleteLineBetweenZoneAndSignals('down') // Удаляем линию между зоной и сигналом
       } else {
-        drawLine(dragItem, dragItemsInzone[0], zone, zoneId)
+        drawLine(dragItem, dragItemsInzone[0], zoneId, zone)
       }
       break
     }
@@ -264,12 +291,19 @@ shelf.addEventListener('drop', handlerDropShelf)
 
 function handlerDropShelf(e) {
   let item = e.dataTransfer.getData('item')
+
   let zone = e.dataTransfer.getData('zone')
 
   let dragItem = document.querySelector(`[data-item="${item}"]`)
+  // let dragItem = dragSrcEl
 
-  // Возвращаем элемент на свою позицию
-  document.querySelector(`[data-shelf="${item}"]`).append(dragItem)
+  if (dragSrcEl.classList.contains('signal') && zone != 'null') {
+    //  dragItem.remove()
+    dragSrcEl.remove()
+  } else {
+    // Возвращаем элемент на свою позицию
+    document.querySelector(`[data-shelf="${item}"]`).append(dragItem)
+  }
 
   // Удаление линий
   lines = document.querySelectorAll('line')
@@ -279,12 +313,16 @@ function handlerDropShelf(e) {
 
     let signalsInThisZone = [...document.querySelectorAll(`[data-zone="${zone}"] .signal`)]
     // Линия между сигналом и соседней секцией удаляется, если нет больше сигналов
-    if ((numbers.includes(zone) || numbers[1] == zone || numbers[0] == zone) && signalsInThisZone.length == 0 && !line.dataset.isSignal) {
+    console.log(numbers)
+    console.log(zone)
+    if (numbers[1] == zone && !line.dataset.isSignal) {
+      line.remove()
+    } else if (numbers[0] == zone && !line.dataset.isSignal) {
       line.remove()
     }
 
     // Если линии между сигналами
-    if (dragItem.classList.contains('signal') && line.dataset.isSignal && numbers.includes(dragItem.dataset.item)) {
+    if (dragSrcEl.classList.contains('signal') && line.dataset.isSignal && numbers.includes(dragSrcEl.dataset.item)) {
       line.remove()
     }
   })
