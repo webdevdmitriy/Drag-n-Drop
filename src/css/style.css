@@ -51,7 +51,7 @@
 .dragItem_out2 {
   left: auto;
   right: 0px;
-  cursor: url('img/cursor.png'), auto;
+  cursor: url('../img/cursor.png'), auto;
 }
 
 polyline {

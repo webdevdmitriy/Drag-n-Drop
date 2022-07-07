@@ -125,6 +125,7 @@ outs2.forEach(function (item) {
       item.onclick = function () {
         let block2 = item.parentNode
         drawLineFeedBack(block1, block2)
+        saveHTMLToLS()
       }
     })
   })
@@ -245,7 +246,14 @@ function handlerDrop(e) {
     label.textContent = 'Текст'
     const select = document.createElement('select')
     const option = document.createElement('option')
+    option.textContent = 'Нагрузка руды'
+    const option2 = document.createElement('option')
+    option2.textContent = 'Расход воды'
+    const option3 = document.createElement('option')
+    option3.textContent = 'ПЛОТН-МД38'
     select.append(option)
+    select.append(option2)
+    select.append(option3)
     const input = document.createElement('input')
     div.append(label)
     div.append(select)
@@ -441,6 +449,7 @@ function handlerDropShelf(e) {
   if (dragSrcEl.classList.contains('signal')) {
     document.querySelector(`[data-data-inner="${dragSrcEl.dataset.item}"]`).remove()
   }
+  saveHTMLToLS()
 }
 
 //===================================================================================
