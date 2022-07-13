@@ -465,14 +465,14 @@ function handlerDropShelf(e) {
 
 //===================================================================================
 // Рисуем линии
-
 const zone = document.querySelector('.zones')
-let zoneLocation = zone.getBoundingClientRect()
-let outOffset = document.querySelector('.dragItem_out1').getBoundingClientRect().width / 2 - 1
 
-function drawLine(item1, item2, zoneid, zone, isSignal) {
+function drawLine(item1, item2, itemId1, itemid2, isSignal) {
+  let zoneLocation = zone.getBoundingClientRect()
+  let outOffset = document.querySelector('.dragItem_out1').getBoundingClientRect().width / 2 - 1
+
   //Если такая OC есть, возвращаем, ничего не рисуем
-  if (document.querySelector(`line[data-line="${zoneid}-${zone}"]:not([data-is-signal='true'])`)) {
+  if (document.querySelector(`line[data-line="${itemId1}-${itemid2}"]:not([data-is-signal='true'])`)) {
     return
   }
   let react1 = item1 && item1.getBoundingClientRect()
@@ -500,7 +500,7 @@ function drawLine(item1, item2, zoneid, zone, isSignal) {
   line.setAttribute('y1', react1.bottom - zoneLocation.top - 2)
   line.setAttribute('x2', react2.left - zoneLocation.left + outOffset)
   line.setAttribute('y2', react2.top - zoneLocation.top)
-  line.dataset.line = `${zoneid}-${zone}`
+  line.dataset.line = `${itemId1}-${itemid2}`
   console.log('x1', react1.left - zoneLocation.left + outOffset)
   console.log('y1', react1.bottom - zoneLocation.top - 2)
 
