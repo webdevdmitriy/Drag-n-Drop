@@ -158,7 +158,10 @@ function getNewDragsItems() {
 
 let dragSrcEl // Перетаскиваемый объект
 function handlerDragStart(e) {
-  e.dataTransfer.setData('item', e.target.dataset.item)
+  try {
+    e.dataTransfer.setData('item', e.target.dataset.item)
+  } catch {}
+
   e.target.closest('.zone') && e.dataTransfer.setData('zone', e.target.closest('.zone').dataset.zone)
 
   dragSrcEl = this
@@ -287,10 +290,14 @@ function handlerDrop(e) {
         let item1 = zonesArray[i].querySelector('.dragItem')
         let item2 = signals[0]
         drawLine(item1, item2, item1.dataset.item, item2.dataset.item)
+        console.log('item1: ', item1)
+        console.log('item2: ', item2)
         // deleteLineBetweenZoneAndSignals('up') // Удаляем линию между зоной и сигналом
       } else {
         let item1 = dragItemsInzone[dragItemsInzone.length - 1]
         let item2 = dragItem
+        console.log('item1: ', item1)
+        console.log('item2: ', item2)
         drawLine(item1, item2, item1.dataset.item, item2.dataset.item)
       }
 
@@ -305,12 +312,14 @@ function handlerDrop(e) {
     if (zonesArray[i].querySelector('.dragItem')) {
       let zone = zonesArray[i].dataset.zone
       // Линии проводяет только до ближайших двух зон
-
       if (dragItem.classList.contains('signal')) {
         let item1 = signals[signals.length - 1]
+        console.log('item1: ', item1)
         let item2 = zonesArray[i].querySelector('.dragItem')
+        console.log('item2: ', item2)
+
         drawLine(item1, item2, item1.dataset.item, item2.dataset.item)
-        deleteLineBetweenZoneAndSignals(down) // Удаляем линию между зоной и сигналом
+        deleteLineBetweenZoneAndSignals('down') // Удаляем линию между зоной и сигналом
       } else {
         drawLine(dragItem, dragItemsInzone[0], dragItem.dataset.item, dragItemsInzone[0].dataset.item)
       }
@@ -329,17 +338,17 @@ function handlerDrop(e) {
   // }
 
   function deleteLineBetweenZoneAndSignals(direction) {
-    let operand = direction == 'down' ? 1 : -1
+    // let operand = direction == 'down' ? 1 : -1
+
     lines.forEach(function (line) {
       let numbers = line.dataset.line.split('-').map(Number)
-      let zone = document.querySelector(`[data-zone="${+zoneId + operand}"]`)
+      let zone = document.querySelector(`[data-zone="${+zoneId + 1}"]`)
       let item
       if (zone.querySelector('.dragItem')) {
         item = zone.querySelector('.dragItem').dataset.item
       }
       if (numbers.includes(+item)) {
         line.remove()
-        console.log(12)
       }
     })
   }
@@ -355,6 +364,7 @@ function handlerDropShelf(e) {
   let zone = e.dataTransfer.getData('zone')
 
   // Если бросаем объект не из зоны(с полки). Взяли с полки и отпустили
+
   if (!zone) {
     return
   }
@@ -415,20 +425,21 @@ function handlerDropShelf(e) {
       let item2 = dragItemsInzone[0]
 
       item1 && item2 && drawLine(item1, item2, item1.dataset.item, item2.dataset.item)
+
       break
     }
+  }
+  for (let i = zone - 2, counter = 0; i >= 0, counter <= 1; i--, counter++) {
+    if (i < 0) break // Если первая зона
+    if (i >= zonesArray.length) break
+    const dragItemsInzone = zonesArray[i].querySelectorAll('.dragItem')
+    if (zonesArray[i].querySelector('.dragItem')) {
+      let item1 = currentZoneDragItems[0]
+      let item2 = dragItemsInzone[dragItemsInzone.length - 1]
 
-    for (let i = zone - 2, counter = 0; i >= 0, counter <= 1; i--, counter++) {
-      if (i < 0) break // Если первая зона
-      if (i >= zonesArray.length) break
-      const dragItemsInzone = zonesArray[i].querySelectorAll('.dragItem')
-      if (zonesArray[i].querySelector('.dragItem')) {
-        let item1 = currentZoneDragItems[0]
-        let item2 = dragItemsInzone[dragItemsInzone.length - 1]
+      item1 && item2 && drawLine(item1, item2, item1.dataset.item, item2.dataset.item)
 
-        item1 && item2 && drawLine(item1, item2, item1.dataset.item, item2.dataset.item)
-        break
-      }
+      break
     }
   }
 
@@ -481,6 +492,7 @@ function drawLine(item1, item2, zoneid, zone, isSignal) {
   })
 
   let line = document.createElementNS('http://www.w3.org/2000/svg', 'line')
+
   line.style.stroke = 'rgb(255, 0, 0)'
   line.style.strokeWidth = '2'
 
@@ -489,6 +501,13 @@ function drawLine(item1, item2, zoneid, zone, isSignal) {
   line.setAttribute('x2', react2.left - zoneLocation.left + outOffset)
   line.setAttribute('y2', react2.top - zoneLocation.top)
   line.dataset.line = `${zoneid}-${zone}`
+  console.log('x1', react1.left - zoneLocation.left + outOffset)
+  console.log('y1', react1.bottom - zoneLocation.top - 2)
+
+  // let length = Math.ceil(line.getAttribute('y2') - line.getAttribute('y1'))
+
+  // line.style.strokeDasharray = length + 'px'
+  // line.classList.add('line')
 
   isSignal && (line.dataset.isSignal = true)
 

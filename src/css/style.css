@@ -54,9 +54,22 @@
   cursor: url('../img/cursor.png'), auto;
 }
 
+/* Анимация линий */
 polyline {
   cursor: pointer;
 }
+/* .line {
+
+  animation: draw 1s linear forwards;
+} */
+/* @keyframes draw {
+  from {
+    stroke-dashoffset: 50;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+} */
 
 /* Основная секция */
 .main {
@@ -65,6 +78,7 @@ polyline {
 .main__inner {
   display: flex;
   justify-content: space-between;
+  position: relative;
 }
 
 /* Поля */
@@ -172,6 +186,13 @@ svg {
 }
 .data-signal .data-inner__block input {
   margin-left: 10px;
+}
+
+.control {
+  position: absolute;
+  top: 200px;
+  transform: translateY(-50%);
+  left: -50px;
 }
 
 /* LS */
